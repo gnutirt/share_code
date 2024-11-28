@@ -18,4 +18,4 @@ Add File Host vào và kích hoạt
  1. `pip3 install synology-api`
 
 # Thành quả
-![Add File Host vào ](https://github.com/gnutirt/share_code/blob/main/Fshare_Xpen_Downloadstation/Screenshot%202024-11-28%20202832.png?raw=true)
+![Thành quả](https://github.com/gnutirt/share_code/blob/main/Fshare_Xpen_Downloadstation/Screenshot%202024-11-28%20204700.png?raw=true)
