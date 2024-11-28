@@ -3,7 +3,7 @@ from synology_api import downloadstation
 import csv
 
 # Thông tin kết nối của bạn
-DSM_IP = "gauhost.zapto.org"
+DSM_IP = ""
 DSM_PORT = "5001"
 USERNAME = ""
 PASSWORD = ""
