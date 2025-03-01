@@ -1,11 +1,22 @@
 from binance.client import Client
 import Binance_bot_trade.config.config as config
+import Binance_bot_trade.config.botConfig as botConfig
 import os
 import time
 
 # Kết nối đến Binance Futures Testnet
-client_futures = Client(config.API_Key_future, config.API_Secret_future, testnet=True, requests_params={"timeout": 30})
 
+# Chọn API Key và Secret dựa trên TEST_MODE
+if botConfig.TEST_MODE:
+    api_key = config.API_Key_future_Test
+    api_secret = config.API_Secret_future_Test
+else:
+    api_key = config.API_Key_future
+    api_secret = config.API_Secret_future
+
+# Khởi tạo client với API Key tương ứng
+client_futures = Client(api_key, api_secret, testnet=botConfig.TEST_MODE, requests_params={"timeout": 30})
+  
 # Hàm tự động đồng bộ thời gian nếu gặp lỗi timestamp
 def handle_timestamp_error(e):
     error_message = str(e)

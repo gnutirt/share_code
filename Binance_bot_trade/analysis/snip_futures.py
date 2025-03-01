@@ -41,6 +41,62 @@ def get_funding_rate(symbol=config.TRADE_PAIR_FUTURES_BTCUSDT):
         return {"error": str(e)}
 
 # 🔥 3. Lấy Open Interest (Tổng vị thế mở)
+
+import numpy as np
+
+# 📊 Phân tích dữ liệu Kline để lấy RSI, EMA, MACD
+def analyze_kline(ohlcv, rsi_period=14, ema_period=50, short_macd=12, long_macd=26, signal_macd=9):
+    if len(ohlcv) < max(rsi_period, ema_period, long_macd):
+        return None, None, None  # Không đủ dữ liệu để tính toán
+
+    close_prices = np.array([candle["close"] for candle in ohlcv])
+
+    # ✅ 1. Tính RSI
+    deltas = np.diff(close_prices)
+    gain = np.maximum(deltas, 0)
+    loss = np.abs(np.minimum(deltas, 0))
+
+    avg_gain = np.convolve(gain, np.ones(rsi_period) / rsi_period, mode="valid")
+    avg_loss = np.convolve(loss, np.ones(rsi_period) / rsi_period, mode="valid")
+
+    rs = avg_gain / avg_loss
+    rsi_values = 100 - (100 / (1 + rs))
+    rsi = float(rsi_values[-1]) if len(rsi_values) > 0 else None
+
+    # ✅ 2. Tính EMA
+    ema_values = np.zeros_like(close_prices, dtype=float)
+    multiplier = 2 / (ema_period + 1)
+    ema_values[ema_period - 1] = np.mean(close_prices[:ema_period])
+
+    for i in range(ema_period, len(close_prices)):
+        ema_values[i] = (close_prices[i] - ema_values[i - 1]) * multiplier + ema_values[i - 1]
+    ema = float(ema_values[-1]) if len(ema_values) > 0 else None
+
+    # ✅ 3. Tính MACD
+    ema_short = np.zeros_like(close_prices, dtype=float)
+    ema_long = np.zeros_like(close_prices, dtype=float)
+
+    multiplier_short = 2 / (short_macd + 1)
+    multiplier_long = 2 / (long_macd + 1)
+
+    ema_short[short_macd - 1] = np.mean(close_prices[:short_macd])
+    ema_long[long_macd - 1] = np.mean(close_prices[:long_macd])
+
+    for i in range(short_macd, len(close_prices)):
+        ema_short[i] = (close_prices[i] - ema_short[i - 1]) * multiplier_short + ema_short[i - 1]
+
+    for i in range(long_macd, len(close_prices)):
+        ema_long[i] = (close_prices[i] - ema_long[i - 1]) * multiplier_long + ema_long[i - 1]
+
+    macd_line = ema_short - ema_long
+    signal_line = np.convolve(macd_line, np.ones(signal_macd) / signal_macd, mode="valid")
+
+    macd = float(macd_line[-1]) if len(macd_line) > 0 else None
+    signal = float(signal_line[-1]) if len(signal_line) > 0 else None
+
+    return rsi, ema, macd
+
+
 def get_open_interest(symbol=config.TRADE_PAIR_FUTURES_BTCUSDT):
     """
     Lấy Open Interest hiện tại trên Binance Futures.

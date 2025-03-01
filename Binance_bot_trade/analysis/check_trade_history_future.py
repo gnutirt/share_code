@@ -29,12 +29,17 @@ def check_trade_history_futures(symbol, limit=100):
     except Exception as e:
         print(f"❌ Lỗi khi lấy lịch sử giao dịch Futures ({symbol}): {e}")
         return []
+def testIp():
+    import requests
 
+    response = requests.get("https://ifconfig.me")
+    print("IP thực tế của bạn là:", response.text)
 if __name__ == "__main__":
+    # testIp()
     trade_pairs_futures = [
         config.TRADE_PAIR_FUTURES_BTCUSDT,
-        config.TRADE_PAIR_FUTURES_ETHUSDT,
-        config.TRADE_PAIR_FUTURES_BNBUSDT
+        # config.TRADE_PAIR_FUTURES_ETHUSDT,
+        # config.TRADE_PAIR_FUTURES_BNBUSDT
     ]
 
     for pair in trade_pairs_futures:
