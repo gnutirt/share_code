@@ -232,6 +232,8 @@ def place_limit_long_with_stop_loss(symbol, price, quantity):
     # 🔹 Lấy giá Futures
     futures_price_info = update_price.get_futures_price(symbol)
     futures_price = futures_price_info.get("futures_price")
+    account_info = client_futures.futures_account()
+    available_margin = float(account_info["availableBalance"])
 
     if futures_price is None:
         logging.error(f"❌ Không thể lấy giá Futures cho {symbol}, không thể đặt lệnh!")
@@ -267,6 +269,10 @@ def place_limit_long_with_stop_loss(symbol, price, quantity):
     if usdt_balance < required_margin:
         logging.warning(f"❌ Không đủ USDT! Cần {required_margin:.2f} USDT nhưng chỉ có {usdt_balance:.2f} USDT.")
         return None  # Không thực hiện lệnh
+    
+    if available_margin < required_margin:
+        logging.warning(f"❌ Không đủ margin! Cần {required_margin:.2f} USDT nhưng chỉ có {available_margin:.2f} USDT.")
+        return None 
 
     logging.info(f"\n📌 Đặt lệnh Limit Long Futures cho {symbol} - Giá: {price}, Số lượng: {quantity}, Đòn bẩy: {leverage}x")
 
@@ -382,6 +388,8 @@ def place_limit_short_with_stop_loss(symbol, price, quantity):
     leverage = botConfig.TRADE_LEVERAGE  # Lấy đòn bẩy từ botConfig
     stop_loss_percent = botConfig.STOP_LOSS_PERCENT_GRID_FUTURES
     check_and_update_leverage(symbol, leverage)  # Kiểm tra & cập nhật leverage
+    account_info = client_futures.futures_account()
+    available_margin = float(account_info["availableBalance"])
 
     # 🔹 Lấy số dư USDT
     usdt_balance = get_futures_balance("USDT")
@@ -421,6 +429,10 @@ def place_limit_short_with_stop_loss(symbol, price, quantity):
   
     # 🔹 Kiểm tra số USDT cần ký quỹ
     required_margin = (quantity * futures_price) / leverage  # Số USDT cần ký quỹ
+    if available_margin < required_margin:
+        logging.warning(f"❌ Không đủ margin khả dụng! Cần {required_margin:.2f} USDT nhưng chỉ có {available_margin:.2f} USDT.")
+        return None  # Không thực hiện lệnh
+    
 
     if usdt_balance < required_margin:
         logging.warning(f"❌ Không đủ USDT! Cần {required_margin:.2f} USDT nhưng chỉ có {usdt_balance:.2f} USDT.")

@@ -258,7 +258,7 @@ def main_loop():
             logging.info(f"🔄 Số lệnh mở: {open_orders} | Số vị thế mở: {open_positions_count}")
 
        
-            if usdt_balance < botConfig.MIN_TRADE_AMOUNT:
+            if usdt_balance < botConfig.GRID_ORDER_VALUE:
                 logging.warning("⚠️ Không đủ USDT để giao dịch Futures!")
                 continue
             
